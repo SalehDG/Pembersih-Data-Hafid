@@ -98,7 +98,6 @@ def pisahkan_deskripsi(desc):
             return desc, ""
             
         # Parameter Baru 1: Trf Dari - 008 - 305876 K9XFM8LZ DAPUR PAHLAWAN
-        # Mencari pola "Trf Dari - [Angka] - [2 kata pertama sebagai Uraian] [Sisa kata sebagai Nama]"
         match_baru = re.match(r'^Trf Dari\s*-\s*\d+\s*-\s*(\S+\s+\S+)\s+(.*)$', desc, flags=re.IGNORECASE)
         if match_baru:
             uraian = match_baru.group(1).strip()
@@ -112,7 +111,7 @@ def pisahkan_deskripsi(desc):
         match_bersama = re.match(r'^Trf Bersama to BSI\s*-\s*(.*)$', desc, flags=re.IGNORECASE)
         if match_bersama:
             uraian = match_bersama.group(1).strip()
-            return uraian, "" # Nama dikosongkan sesuai permintaan
+            return uraian, ""
         return desc, ""
         
     # 5. Kondisi: Selain di atas
@@ -130,6 +129,7 @@ if file_unggahan is not None:
         df = pd.read_excel(file_unggahan, skiprows=header_idx)
         
         st.write("### Data Mentah (Tabel Utama Ditemukan):")
+        # Menampilkan hanya 5 baris pertama untuk data mentah
         st.dataframe(df.head())
         st.divider()
         
@@ -164,7 +164,10 @@ if file_unggahan is not None:
             
             st.success("✅ Data berhasil dirapihkan!")
             st.write("### Data Hasil (Setelah Diproses):")
-            st.dataframe(df_rapih.head())
+            
+            # PERUBAHAN DI SINI:
+            # Menghapus .head() agar Streamlit merender seluruh DataFrame df_rapih
+            st.dataframe(df_rapih)
             
             # Konversi dataframe ke excel
             output = io.BytesIO()
