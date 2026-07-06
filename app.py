@@ -74,8 +74,7 @@ def pisahkan_deskripsi(desc):
             return uraian, nama
         return desc, ""
         
-    # 2. Kondisi: [Uraian] Trf Dari - [Nama] (Kondisi Baru)
-    # Kita cari pola kalimat yang mengandung "Trf Dari -" di tengahnya tapi bukan di awal kalimat
+    # 2. Kondisi: [Uraian] Trf Dari - [Nama]
     elif not desc.startswith("Trf Dari") and re.search(r'Trf Dari\s*-', desc, flags=re.IGNORECASE):
         # Pisahkan berdasarkan kata "Trf Dari -"
         match = re.search(r'(.*)\s*Trf Dari\s*-\s*(.*)', desc, flags=re.IGNORECASE)
@@ -85,8 +84,9 @@ def pisahkan_deskripsi(desc):
             return uraian, nama
         return desc, ""
 
-    # 3. Kondisi: Trf Dari - 009 - - 206056 GXPP6Y0Z INDHIFA MU (Di awal kalimat)
+    # 3. Kondisi: Mengandung "Trf Dari" di awal kalimat
     elif desc.startswith("Trf Dari"):
+        # Pola Lama: Trf Dari - 009 - - 206056 GXPP6Y0Z INDHIFA MU
         prefix_match = re.match(r'Trf Dari\s*-\s*\d+\s*-\s*-\s*', desc)
         if prefix_match:
             sisa_kalimat = desc[prefix_match.end():]
@@ -95,9 +95,27 @@ def pisahkan_deskripsi(desc):
                 uraian = " ".join(words[:2]) 
                 nama = " ".join(words[2:])   
                 return uraian, nama
+            return desc, ""
+            
+        # Parameter Baru 1: Trf Dari - 008 - 305876 K9XFM8LZ DAPUR PAHLAWAN
+        # Mencari pola "Trf Dari - [Angka] - [2 kata pertama sebagai Uraian] [Sisa kata sebagai Nama]"
+        match_baru = re.match(r'^Trf Dari\s*-\s*\d+\s*-\s*(\S+\s+\S+)\s+(.*)$', desc, flags=re.IGNORECASE)
+        if match_baru:
+            uraian = match_baru.group(1).strip()
+            nama = match_baru.group(2).strip()
+            return uraian, nama
+            
         return desc, ""
         
-    # 4. Kondisi: Selain di atas
+    # Parameter Baru 2: Trf Bersama to BSI - Bersama\000000024634\252438
+    elif desc.startswith("Trf Bersama to BSI"):
+        match_bersama = re.match(r'^Trf Bersama to BSI\s*-\s*(.*)$', desc, flags=re.IGNORECASE)
+        if match_bersama:
+            uraian = match_bersama.group(1).strip()
+            return uraian, "" # Nama dikosongkan sesuai permintaan
+        return desc, ""
+        
+    # 5. Kondisi: Selain di atas
     else:
         return desc, ""
 
@@ -141,7 +159,7 @@ if file_unggahan is not None:
                 else:
                     df_rapih.at[index, 'Debit'] = amount_rapih
                     
-            # 4. Saldo diambil dan dirapihkan nominalnya juga (Opsional, tapi sebaiknya disamakan formatnya)
+            # 4. Saldo diambil dan dirapihkan nominalnya juga
             df_rapih['Saldo'] = df['Balance'].apply(rapikan_nominal)
             
             st.success("✅ Data berhasil dirapihkan!")
