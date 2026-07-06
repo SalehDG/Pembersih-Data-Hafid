@@ -129,8 +129,8 @@ if file_unggahan is not None:
         df = pd.read_excel(file_unggahan, skiprows=header_idx)
         
         st.write("### Data Mentah (Tabel Utama Ditemukan):")
-        # Menampilkan hanya 5 baris pertama untuk data mentah
-        st.dataframe(df.head())
+        # Ditambahkan hide_index=True agar nomor urut hilang
+        st.dataframe(df.head(), hide_index=True)
         st.divider()
         
         if st.button("Proses & Rapihkan Data"):
@@ -165,9 +165,11 @@ if file_unggahan is not None:
             st.success("✅ Data berhasil dirapihkan!")
             st.write("### Data Hasil (Setelah Diproses):")
             
-            # PERUBAHAN DI SINI:
-            # Menghapus .head() agar Streamlit merender seluruh DataFrame df_rapih
-            st.dataframe(df_rapih)
+            # Info panduan cara copy data
+            st.info("💡 **Tips Copy Data:** Klik sembarang sel pada tabel di bawah, tekan **Ctrl + A** lalu **Ctrl + C**. Kamu bisa langsung paste datanya ke Excel/Spreadsheet. (Bisa juga pakai menu di pojok kanan atas tabel)")
+            
+            # Menghapus index dengan hide_index=True dan memunculkan semua baris (tanpa .head())
+            st.dataframe(df_rapih, hide_index=True)
             
             # Konversi dataframe ke excel
             output = io.BytesIO()
